@@ -70,7 +70,7 @@ static int pagemap_garbage_collection(void)
 
 	victim_block = -1;
 	max_invalid_pages = -1;
-#if 0
+
 	/* the first block with invalidation pages selected as the victim */
 	for (block_idx = 0; block_idx < (BLOCKS_PER_NAND); block_idx++) {
 		if (pagemap_str.num_invalid_pages[block_idx] > 0) {
@@ -79,15 +79,6 @@ static int pagemap_garbage_collection(void)
 			break;
 		}
 	}
-#else
-	/* find Victim block with most invalidation page count (GREEDY) */
-	for (block_idx = 0; block_idx < (BLOCKS_PER_NAND); block_idx++) {
-		if (pagemap_str.num_invalid_pages[block_idx] > max_invalid_pages) {
-			victim_block = block_idx;
-			max_invalid_pages = pagemap_str.num_invalid_pages[block_idx];
-		}
-	}
-#endif
 
 	if (VERBOSE_MODE)
 		printf("%s:%d victim_block %d max_invalid_pages %d\n",
