@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
 	double waf;
 	struct ftl_operation op = { NULL, NULL, NULL };
 
+	//validation check
 	if (argc != 3) {
 		printf("..help: %s <mode> <argument>\n", argv[0]);
 		printf("..mode(0) - %s 0 <filename>\n", argv[0]);
@@ -32,12 +33,13 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	//initialization
 	main_stats.total_read_lpn = 0;
 	main_stats.total_write_lpn = 0;
-
 	pagemap_init(&op);
 //      blockmap_init(&op);
 
+	//mode check
 	mode = atoi(argv[1]);
 	if (mode != 0 && mode != 1) {
 		printf("mode %d error..\n", mode);
@@ -64,6 +66,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* print statistics */
+	//각 layer statistics print
 	printf("Print ftl stats::\n");
 	op.print_stats();
 	total_nand_page_program = nand_print_stats();
@@ -120,6 +123,7 @@ static void main_mode_1(struct ftl_operation *op, int issue_count)
 	int i;
 
 	/* fillout whole logical space to eliminate null lpn */
+	//전체 디스크 영역에 sequential write 수행 (Map Table 채우기 위한 용도)
 	printf("write whole LPN range..\n");
 	for (i = 0; i < NUM_LPNS; i++)
 		write_lpn(op, i, i);
@@ -128,6 +132,7 @@ static void main_mode_1(struct ftl_operation *op, int issue_count)
 	srand(0); // srand(time(NULL));
 	for (i = 0; i < issue_count; i++) {
 		int lpn = rand() % NUM_LPNS;
+		printf("random LPN %d\n", lpn);
 		write_lpn(op, lpn, lpn);
 	}
 }

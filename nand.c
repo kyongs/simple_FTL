@@ -23,6 +23,7 @@ struct nand_stats {
 struct nand nand;
 struct nand_stats stats;
 
+/* Initizalization */
 void nand_init(void)
 {
 	int block_idx, page_idx;
@@ -42,13 +43,17 @@ void nand_init(void)
 	stats.total_block_erase_count = 0;
 }
 
+//nand에 write
 void nand_page_program(int block_idx, int page_idx, int data_lpn)
 {
+	//validation check
 	assert(block_idx < BLOCKS_PER_NAND);
 	assert(page_idx < PAGES_PER_BLOCK);
-
 	assert(nand.block[block_idx].last_page_offset == page_idx);
 
+	// nand block 
+	// printf("NAND===> BLOCKIDX: %d, PAGE_IDX: %d, DATA_LPN: %d\n", block_idx, page_idx, data_lpn);
+	// nand block 내 해당되는 idx에 삽입
 	nand.block[block_idx].page[page_idx].lpn = data_lpn;
 	nand.block[block_idx].last_page_offset++;
 
@@ -65,6 +70,7 @@ int nand_page_read(int block_idx, int page_idx)
 	return nand.block[block_idx].page[page_idx].lpn;
 }
 
+/* 블록 안에 원소들을 모두 초기화, 모두 invalid 시킴 */
 void nand_block_erase(int block_idx)
 {
 	int page_idx;
