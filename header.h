@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define VERBOSE_MODE 1
+#define VERBOSE_MODE 1 //디버깅을 위한 부분
 
 /* user capacity */
 #define NUM_LBNS 3  //전체 블록 개수
@@ -32,6 +32,8 @@ struct ftl_operation {
 	void (*write_op)(int lpn, int data);
 	void (*print_stats)(void);
 };
+
+void nand_init();
 
 /* for page-map ftl */
 void pagemap_init(struct ftl_operation *op);

@@ -11,7 +11,7 @@ struct block {
 };
 
 struct nand {
-	struct block block[BLOCKS_PER_NAND]; /* + Free Block for GC */
+	struct block block[BLOCKS_PER_NAND];
 };
 
 struct nand_stats {
@@ -52,7 +52,6 @@ void nand_page_program(int block_idx, int page_idx, int data_lpn)
 	assert(nand.block[block_idx].last_page_offset == page_idx);
 
 	// nand block 
-	// printf("NAND===> BLOCKIDX: %d, PAGE_IDX: %d, DATA_LPN: %d\n", block_idx, page_idx, data_lpn);
 	// nand block 내 해당되는 idx에 삽입
 	nand.block[block_idx].page[page_idx].lpn = data_lpn;
 	nand.block[block_idx].last_page_offset++;

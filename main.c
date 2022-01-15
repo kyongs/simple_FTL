@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
 	//initialization
 	main_stats.total_read_lpn = 0;
 	main_stats.total_write_lpn = 0;
+	nand_init();
 	pagemap_init(&op);
 //      blockmap_init(&op);
 

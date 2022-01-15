@@ -2,9 +2,7 @@
 
 struct pagemap_str {
 	
-	int l2p_page_map[NUM_LPNS];
-	int p2l_page_map[NUM_PPNS]; //전체 페이지 개수만큼
-
+	int page_map[NUM_LPNS];
 	int num_invalid_pages[BLOCKS_PER_NAND];
 
 	int current_block;	 /* current write block */
@@ -33,11 +31,7 @@ static void pagemap_print_stats(void)
 
 static int pagemap_get_ppn(int lpn)
 {
-	return pagemap_str.l2p_page_map[lpn];
-}
-
-static int pagemap_get_lpn(int ppn) {
-	return pagemap_str.p2l_page_map[ppn];
+	return pagemap_str.page_map[lpn];
 }
 
 /* pagemap update (L2P, P2L)*/
@@ -49,7 +43,7 @@ static void pagemap_set_ppn(int lpn, int ppn)
 	assert(ppn < NUM_PPNS);
 
 	/* increase invalidation count of previous block */
-	old_ppn = pagemap_str.l2p_page_map[lpn];
+	old_ppn = pagemap_str.page_map[lpn];
 
 	// 이전에 기록된 적이 없다면 바로 page table들 update
 	if (old_ppn < 0)
@@ -58,11 +52,8 @@ static void pagemap_set_ppn(int lpn, int ppn)
 	// 업데이트 이전 블록 idx 가져와서 invalidation count 올림
 	old_block_idx = old_ppn / PAGES_PER_BLOCK;
 	assert(old_block_idx < BLOCKS_PER_NAND);
-	pagemap_str.num_invalid_pages[old_block_idx]++;
 
-	// p2l page map에서 예전 ppn은 초기화 (아무도 안쓴다는 것을 명시해줌)
-	pagemap_str.p2l_page_map[old_ppn] = -1;
-	
+	pagemap_str.num_invalid_pages[old_block_idx]++;
 	if (VERBOSE_MODE) {
 		printf("%s:%d old_block %d invalid_count %d\n",
 		       __func__, __LINE__, old_block_idx,
@@ -71,13 +62,12 @@ static void pagemap_set_ppn(int lpn, int ppn)
 
 	/* set page table */
 	set_page_table:
-		pagemap_str.l2p_page_map[lpn] = ppn;
-		pagemap_str.p2l_page_map[ppn] = lpn;
+		pagemap_str.page_map[lpn] = ppn;
 }
 
 static int pagemap_garbage_collection(void)
 {
-	int block_idx, page_idx, ppn_in_victim;//ppn_in_map,
+	int block_idx, page_idx, ppn_in_victim, ppn_in_map;
 	int data_lpn;
 	int gc_free_block, gc_current_page_offset;
 	int victim_block;
@@ -112,21 +102,13 @@ static int pagemap_garbage_collection(void)
 	/* copy valid page from victim to gc_free_block */ // victim page를 읽음
 	for (page_idx = 0; page_idx < PAGES_PER_BLOCK ; page_idx++) {
 		data_lpn = nand_page_read(victim_block, page_idx);
+		ppn_in_map = pagemap_get_ppn(data_lpn);
 
 		//victim내 ppn 인덱스를 p2l 테이블에 바로 접근하여 lpn 확인함, 인덱스 접근 후 -1 아니면 바로 pagemap_set_ppn하면됨
 		ppn_in_victim = victim_block * PAGES_PER_BLOCK + page_idx;
-
-		// p2l table을 통해 가져온 lpn
-		int lpn = pagemap_get_lpn(ppn_in_victim);
-		if(lpn == -1) //p2l map table에서 -1은 invalid하다는 것을 뜻함
+		
+		if (ppn_in_map != ppn_in_victim) //같지않으면 invalid된 page라는 뜻이므로 continue
 			continue;
-		
-		// validation check => nand에서 읽은 data_lpn과 p2l table index에서 읽은 lpn이 일치해야 함
-		assert(data_lpn == lpn);
-		
-		// ppn_in_map = pagemap_get_ppn(data_lpn);
-		// if (ppn_in_map != ppn_in_victim) //같지않으면 invalid된 page라는 뜻이므로 continue
-		// 	continue;
 
 		// nand에 write
 		nand_page_program(gc_free_block, gc_current_page_offset, data_lpn);
@@ -230,11 +212,7 @@ void pagemap_init(struct ftl_operation *op)
 
 	// l2p page_map을 -1로 채움
 	for (page_idx = 0; page_idx < NUM_LPNS; page_idx++)
-		pagemap_str.l2p_page_map[page_idx] = -1;
-
-	// p2l page_map을 -1로 채움
-	for (page_idx = 0; page_idx < NUM_PPNS; page_idx++)
-		pagemap_str.p2l_page_map[page_idx] = -1;
+		pagemap_str.page_map[page_idx] = -1;
 
 	op->write_op = pagemap_write_op;
 	op->read_op = pagemap_read_op;
