@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
 	main_stats.total_read_lpn = 0;
 	main_stats.total_write_lpn = 0;
 	nand_init();
-	pagemap_init(&op);
-//      blockmap_init(&op);
+	// pagemap_init(&op);
+    blockmap_init(&op);
 
 	//mode check
 	mode = atoi(argv[1]);
@@ -133,7 +133,6 @@ static void main_mode_1(struct ftl_operation *op, int issue_count)
 	srand(0); // srand(time(NULL));
 	for (i = 0; i < issue_count; i++) {
 		int lpn = rand() % NUM_LPNS;
-		printf("random LPN %d\n", lpn);
 		write_lpn(op, lpn, lpn);
 	}
 }

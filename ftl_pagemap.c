@@ -34,7 +34,7 @@ static int pagemap_get_ppn(int lpn)
 	return pagemap_str.page_map[lpn];
 }
 
-/* pagemap update (L2P, P2L)*/
+/* pagemap update*/
 static void pagemap_set_ppn(int lpn, int ppn)
 {
 	int old_block_idx, old_ppn;
@@ -55,7 +55,7 @@ static void pagemap_set_ppn(int lpn, int ppn)
 
 	pagemap_str.num_invalid_pages[old_block_idx]++;
 	if (VERBOSE_MODE) {
-		printf("%s:%d old_block %d invalid_count %d\n",
+		("%s:%d old_block %d invalid_count %d\n",
 		       __func__, __LINE__, old_block_idx,
 		       pagemap_str.num_invalid_pages[old_block_idx]);
 	}

@@ -49,12 +49,14 @@ void nand_page_program(int block_idx, int page_idx, int data_lpn)
 	//validation check
 	assert(block_idx < BLOCKS_PER_NAND);
 	assert(page_idx < PAGES_PER_BLOCK);
-	assert(nand.block[block_idx].last_page_offset == page_idx);
+	// assert(nand.block[block_idx].last_page_offset == page_idx);
 
-	// nand block 
 	// nand block 내 해당되는 idx에 삽입
 	nand.block[block_idx].page[page_idx].lpn = data_lpn;
-	nand.block[block_idx].last_page_offset++;
+
+
+	// for(int i=0; i< block_idx; i++)
+	// nand.block[block_idx].last_page_offset++;
 
 	stats.total_nand_page_program++;
 }
