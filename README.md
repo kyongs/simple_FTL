@@ -6,3 +6,5 @@ understanding ftl logic
 ./make.sh
 ./ftlsim 1 1000
 ```
+
+https://somewheretogo.tistory.com/177
