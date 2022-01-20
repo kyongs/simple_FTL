@@ -15,7 +15,7 @@
 
 
 /* nand variables */
-#define BLOCKS_PER_NAND (NUM_LBNS + 1)
+#define BLOCKS_PER_NAND (NUM_LBNS + 2)
 #define PAGES_PER_BLOCK 4
 #define NUM_PPNS (BLOCKS_PER_NAND * PAGES_PER_BLOCK) 
 
